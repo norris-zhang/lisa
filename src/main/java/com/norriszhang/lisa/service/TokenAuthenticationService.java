@@ -28,7 +28,11 @@ public class TokenAuthenticationService implements UserAuthenticationService {
             return Optional.empty();
         }
         User user = userOptional.get();
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(user.getLoginId()).roles(user.getRole()).build();
+        UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(user.getLoginId())
+                .password(user.getPassword())
+                .passwordEncoder(p -> p)
+                .roles(user.getRole())
+                .build();
         return Optional.of(userDetails);
     }
 
@@ -36,7 +40,7 @@ public class TokenAuthenticationService implements UserAuthenticationService {
     public Optional<String> login(String username, String password) {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         return userService.findByLoginId(username)
-                          .filter(user -> Objects.equals(encoder.encode(password), user.getPassword()))
+                          .filter(user -> encoder.matches(password, user.getPassword()))
                           .map(user -> tokens.expiring(Map.of("username", user.getLoginId())));
     }
 

@@ -26,7 +26,8 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
-            new AntPathRequestMatcher("/public/**")
+            new AntPathRequestMatcher("/public/**"),
+            new AntPathRequestMatcher("/api/login")
     );
     private static final RequestMatcher PROTECTED_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
 

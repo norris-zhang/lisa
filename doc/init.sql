@@ -17,7 +17,7 @@ CREATE TABLE public.lisa_user
 (
     user_id bigserial NOT NULL,
     user_login_id character varying(200) NOT NULL,
-    user_password character(128) NOT NULL,
+    user_password character varying(128) NOT NULL,
     user_role character varying(50) NOT NULL,
     PRIMARY KEY (user_id)
 );

@@ -7,4 +7,6 @@ import java.util.Optional;
 public interface UserService {
 
     Optional<User> findByLoginId(String loginId);
+
+    Optional<User> findById(Long id);
 }
