@@ -22,7 +22,10 @@ public class AuthController {
         this.userService = userService;
     }
 
-//    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/hc")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("OK");
+    }
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
         System.out.println("username = " + username);
