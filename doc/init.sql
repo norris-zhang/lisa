@@ -5,7 +5,7 @@ CREATE TABLE public.lisa_class
     clas_description character varying(200) NOT NULL,
     clas_day_of_week character(3) NOT NULL,
     clas_duration integer NOT NULL,
-    PRIMARY KEY (user_id)
+    PRIMARY KEY (clas_id)
 );
 
 ALTER TABLE IF EXISTS public.lisa_class
