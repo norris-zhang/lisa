@@ -38,11 +38,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         System.out.println("username = " + username);
         System.out.println("password = " + password);
         Optional<String> loginResult = userAuthService.login(username, password);
