@@ -9,4 +9,6 @@ public interface UserService {
     Optional<User> findByLoginId(String loginId);
 
     Optional<User> findById(Long id);
+
+    User save(User user);
 }

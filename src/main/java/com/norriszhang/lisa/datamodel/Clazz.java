@@ -1,23 +1,25 @@
 package com.norriszhang.lisa.datamodel;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity
-@Table(name = "lisa_class")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
 public class Clazz {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "clas_id")
     private Long id;
-    @Column(name = "clas_name")
     private String name;
-    @Column(name = "clas_description")
+    @Column(length = 2000)
     private String description;
-    @Column(name = "clas_day_of_week")
+    @Column(length = 3)
     private String dayOfWeek;
-    @Column(name = "clas_duration")
     private Integer duration;
 }
