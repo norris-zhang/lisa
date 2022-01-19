@@ -7,7 +7,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -23,17 +22,24 @@ public class TokenAuthenticationService implements UserAuthenticationService {
 
     @Override
     public Optional<UserDetails> findByToken(String token) {
-        Optional<User> userOptional = Optional.of(tokens.verify(token)).map(map -> map.get("username")).flatMap(userService::findByLoginId);
-        if (!userOptional.isPresent()) {
-            return Optional.empty();
-        }
-        User user = userOptional.get();
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(user.getLoginId())
-                .password(user.getPassword())
-                .passwordEncoder(p -> p)
-                .roles(user.getRole())
+//        Optional<User> userOptional = Optional.of(tokens.verify(token)).map(map -> map.get("username")).flatMap(userService::findByLoginId);
+//        if (!userOptional.isPresent()) {
+//            return Optional.empty();
+//        }
+//        User user = userOptional.get();
+//        UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(user.getLoginId())
+//                .password(user.getPassword())
+//                .passwordEncoder(p -> p)
+//                .roles(user.getRole())
+//                .build();
+//        return Optional.of(userDetails);
+        return Optional.ofNullable(tokens.verify(token)).map(map -> {
+            return org.springframework.security.core.userdetails.User
+                .withUsername(map.get("username"))
+                .password("fake-password")
+                .roles(map.get("role"))
                 .build();
-        return Optional.of(userDetails);
+        });
     }
 
     @Override
@@ -41,7 +47,7 @@ public class TokenAuthenticationService implements UserAuthenticationService {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         return userService.findByLoginId(username)
                           .filter(user -> encoder.matches(password, user.getPassword()))
-                          .map(user -> tokens.expiring(Map.of("username", user.getLoginId())));
+                          .map(user -> tokens.expiring(Map.of("username", user.getLoginId(), "role", user.getRole())));
     }
 
     @Override

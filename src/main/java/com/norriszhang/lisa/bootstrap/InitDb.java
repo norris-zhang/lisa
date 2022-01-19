@@ -8,7 +8,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@Profile("dev")
+@Profile({"dev", "test"})
 @Component
 public class InitDb implements ApplicationRunner {
     private final ClassRepository classRepository;

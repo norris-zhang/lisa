@@ -11,10 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
 public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final UserAuthenticationService userAuthService;
@@ -37,11 +38,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
+    public ResponseEntity<Map> login(@RequestParam String username, @RequestParam String password) {
         System.out.println("username = " + username);
         System.out.println("password = " + password);
         Optional<String> loginResult = userAuthService.login(username, password);
-        return ResponseEntity.ok(loginResult.get());
+        Map<String, String> result = new HashMap<>();
+        result.put("token", loginResult.get());
+        return ResponseEntity.ok(result);
     }
 
 //    @CrossOrigin(origins = "localhost:3000")
