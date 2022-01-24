@@ -9,8 +9,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Singular;
 
-import javax.persistence.*;
-import java.time.LocalTime;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,19 +24,13 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Clazz {
+public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @Column(length = 2000)
-    private String description;
-    @Column(length = 3, name = "day_of_week")
-    private String dayOfWeek;
-    @Column(name = "start_time", columnDefinition = "TIME")
-    private LocalTime startTime;
-    private Integer duration;
-    @OneToMany(mappedBy = "clazz")
+    private LocalDate dob;
+    @OneToMany(mappedBy = "student")
     @Default
-    private Set<StudentClass> students = new HashSet<>();
+    private Set<StudentClass> classes = new HashSet<>();
 }
