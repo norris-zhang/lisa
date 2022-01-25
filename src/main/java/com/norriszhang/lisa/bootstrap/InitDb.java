@@ -123,7 +123,7 @@ public class InitDb implements ApplicationRunner {
             .duration(90)
             .build();
         classRepository.save(sat130);
-        
+
         addStudentsToClass(sat130,
             Student.builder()
                 .name("Dongchen Zhang")
