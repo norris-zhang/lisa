@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -19,11 +20,20 @@ public class GlobalExceptionHandler {
             HttpStatus status = HttpStatus.FORBIDDEN;
             AccessDeniedException ade = (AccessDeniedException) ex;
             return handleAuthorizationException(ade, headers, status, request);
+        } else if (ex instanceof AuthenticationCredentialsNotFoundException) {
+            HttpStatus status = HttpStatus.UNAUTHORIZED;
+            AuthenticationCredentialsNotFoundException acnfe = (AuthenticationCredentialsNotFoundException) ex;
+            return handleAuthenticationCredentialsNotFoundException(acnfe, headers, status, request);
         } else {
             HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
             ApiError apiError = ApiError.builder().build();
             return handleExceptionInternal(ex, apiError, headers, status, request);
         }
+    }
+
+    private ResponseEntity<ApiError> handleAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException acnfe, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        ApiError apiError = ApiError.builder().errorMessage(acnfe.getMessage()).build();
+        return handleExceptionInternal(acnfe, apiError, headers, status, request);
     }
 
     private ResponseEntity<ApiError> handleAuthorizationException(AccessDeniedException ade, HttpHeaders headers, HttpStatus status, WebRequest request) {
