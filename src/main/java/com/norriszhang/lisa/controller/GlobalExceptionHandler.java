@@ -11,42 +11,28 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.util.WebUtils;
 
+import javax.security.auth.login.LoginException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ApiError> handleException(Exception ex, WebRequest request) {
         HttpHeaders headers = new HttpHeaders();
         if (ex instanceof AccessDeniedException) {
-            HttpStatus status = HttpStatus.FORBIDDEN;
-            AccessDeniedException ade = (AccessDeniedException) ex;
-            return handleAuthorizationException(ade, headers, status, request);
+            return handleException(ex, headers, HttpStatus.FORBIDDEN, request);
         } else if (ex instanceof AuthenticationCredentialsNotFoundException) {
-            HttpStatus status = HttpStatus.UNAUTHORIZED;
-            AuthenticationCredentialsNotFoundException acnfe = (AuthenticationCredentialsNotFoundException) ex;
-            return handleAuthenticationCredentialsNotFoundException(acnfe, headers, status, request);
+            return handleException(ex, headers, HttpStatus.UNAUTHORIZED, request);
+        } else if (ex instanceof LoginException) {
+            return handleException(ex, headers, HttpStatus.UNAUTHORIZED, request);
         } else {
-            HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-            ApiError apiError = ApiError.builder().build();
-            return handleExceptionInternal(ex, apiError, headers, status, request);
+            return handleException(ex, headers, HttpStatus.INTERNAL_SERVER_ERROR, request);
         }
     }
 
-    private ResponseEntity<ApiError> handleAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException acnfe, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        ApiError apiError = ApiError.builder().errorMessage(acnfe.getMessage()).build();
-        return handleExceptionInternal(acnfe, apiError, headers, status, request);
-    }
-
-    private ResponseEntity<ApiError> handleAuthorizationException(AccessDeniedException ade, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        // get error info from ade and create ApiError instance
-        ApiError apiError = ApiError.builder().errorMessage(ade.getMessage()).build();
-        return handleExceptionInternal(ade, apiError, headers, status, request);
-    }
-
-    private ResponseEntity<ApiError> handleExceptionInternal(Exception ex, ApiError apiError, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    private ResponseEntity<ApiError> handleException(Exception ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
-
         }
-        return new ResponseEntity<>(apiError, headers, status);
+        return new ResponseEntity<>(ApiError.builder().errorMessage(ex.getMessage()).build(), headers, status);
     }
 }

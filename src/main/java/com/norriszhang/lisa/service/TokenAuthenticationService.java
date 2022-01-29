@@ -1,6 +1,7 @@
 package com.norriszhang.lisa.service;
 
 import com.norriszhang.lisa.datamodel.User;
+import com.norriszhang.lisa.dto.LoginUserDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,11 +44,17 @@ public class TokenAuthenticationService implements UserAuthenticationService {
     }
 
     @Override
-    public Optional<String> login(String username, String password) {
+    public Optional<LoginUserDto> login(String username, String password) {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         return userService.findByLoginId(username)
                           .filter(user -> encoder.matches(password, user.getPassword()))
-                          .map(user -> tokens.expiring(Map.of("username", user.getLoginId(), "role", user.getRole())));
+                          .map(user -> LoginUserDto.builder()
+                              .id(user.getId())
+                              .loginUsername(user.getLoginId())
+                              .displayName(user.getDisplayName())
+                              .role(user.getRole())
+                              .token(tokens.expiring(Map.of("id", user.getId().toString(), "username", user.getLoginId(), "role", user.getRole())))
+                              .build());
     }
 
     @Override

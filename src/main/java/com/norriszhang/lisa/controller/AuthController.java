@@ -1,6 +1,7 @@
 package com.norriszhang.lisa.controller;
 
 import com.norriszhang.lisa.datamodel.User;
+import com.norriszhang.lisa.dto.LoginUserDto;
 import com.norriszhang.lisa.service.UserAuthenticationService;
 import com.norriszhang.lisa.service.UserService;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.security.auth.login.LoginException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -32,19 +34,18 @@ public class AuthController {
     }
 
     @GetMapping("/checkLogin")
-    public ResponseEntity<String> checkLogin() {
+    public ResponseEntity<Map<String, String>> checkLogin() {
         log.info("checkLogin...");
-        return ResponseEntity.ok("OK");
+        return ResponseEntity.ok(Map.of("result", "OK"));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map> login(@RequestParam String username, @RequestParam String password) {
+    public ResponseEntity<LoginUserDto> login(@RequestParam String username, @RequestParam String password) throws LoginException {
         System.out.println("username = " + username);
         System.out.println("password = " + password);
-        Optional<String> loginResult = userAuthService.login(username, password);
-        Map<String, String> result = new HashMap<>();
-        result.put("token", loginResult.get());
-        return ResponseEntity.ok(result);
+        Optional<LoginUserDto> loginResult = userAuthService.login(username, password);
+
+        return ResponseEntity.ok(loginResult.orElseThrow(() -> new LoginException("Invalid username or password.")));
     }
 
 //    @CrossOrigin(origins = "localhost:3000")

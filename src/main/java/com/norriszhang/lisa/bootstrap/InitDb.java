@@ -47,7 +47,7 @@ public class InitDb implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        User user = User.builder().loginId("lisa").password("password").role("TEACHER").build();
+        User user = User.builder().loginId("lisa").displayName("Lisa Yao").password("password").role("TEACHER").build();
         userService.save(user);
 
         createClassSat130();
