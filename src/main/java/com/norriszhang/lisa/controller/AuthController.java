@@ -1,5 +1,6 @@
 package com.norriszhang.lisa.controller;
 
+import com.norriszhang.lisa.config.UserPrincipal;
 import com.norriszhang.lisa.datamodel.User;
 import com.norriszhang.lisa.dto.LoginUserDto;
 import com.norriszhang.lisa.service.UserAuthenticationService;
@@ -10,6 +11,7 @@ import org.springframework.boot.actuate.trace.http.HttpTrace;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.LoginException;
@@ -34,9 +36,20 @@ public class AuthController {
     }
 
     @GetMapping("/checkLogin")
-    public ResponseEntity<Map<String, String>> checkLogin() {
+    public ResponseEntity<LoginUserDto> checkLogin(Authentication auth) {
         log.info("checkLogin...");
-        return ResponseEntity.ok(Map.of("result", "OK"));
+        UserPrincipal principal = (UserPrincipal)auth.getPrincipal();
+
+        LoginUserDto loginUserDto = LoginUserDto.builder()
+            .id(principal.getId())
+            .loginUsername(principal.getUsername())
+            .displayName(principal.getDisplayName())
+            .role(principal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .reduce("", (a, b) -> "".equals(a) ? b : a + "," + b))
+            .token(principal.getToken())
+            .build();
+        return ResponseEntity.ok(loginUserDto);
     }
 
     @PostMapping("/login")
@@ -56,7 +69,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         Optional<User> userOptional = userService.findById(id);
-        ResponseEntity<User> response = ResponseEntity.ok(userOptional.get());
-        return response;
+        return ResponseEntity.ok(userOptional.orElseThrow(() -> new RuntimeException("No User Found.")));
     }
 }

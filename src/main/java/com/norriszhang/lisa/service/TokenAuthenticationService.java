@@ -1,8 +1,8 @@
 package com.norriszhang.lisa.service;
 
+import com.norriszhang.lisa.config.UserPrincipal;
 import com.norriszhang.lisa.datamodel.User;
 import com.norriszhang.lisa.dto.LoginUserDto;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,25 +22,12 @@ public class TokenAuthenticationService implements UserAuthenticationService {
     }
 
     @Override
-    public Optional<UserDetails> findByToken(String token) {
-//        Optional<User> userOptional = Optional.of(tokens.verify(token)).map(map -> map.get("username")).flatMap(userService::findByLoginId);
-//        if (!userOptional.isPresent()) {
-//            return Optional.empty();
-//        }
-//        User user = userOptional.get();
-//        UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(user.getLoginId())
-//                .password(user.getPassword())
-//                .passwordEncoder(p -> p)
-//                .roles(user.getRole())
-//                .build();
-//        return Optional.of(userDetails);
-        return Optional.ofNullable(tokens.verify(token)).map(map -> {
-            return org.springframework.security.core.userdetails.User
-                .withUsername(map.get("username"))
-                .password("fake-password")
-                .roles(map.get("role"))
-                .build();
-        });
+    public Optional<UserPrincipal> findByToken(String token) {
+        return Optional.ofNullable(tokens.verify(token)).map(map -> new UserPrincipal(org.springframework.security.core.userdetails.User
+            .withUsername(map.get("username"))
+            .password("fake-password")
+            .roles(map.get("role"))
+            .build(), Long.valueOf(map.get("id")), map.get("displayName"), token));
     }
 
     @Override
@@ -53,7 +40,7 @@ public class TokenAuthenticationService implements UserAuthenticationService {
                               .loginUsername(user.getLoginId())
                               .displayName(user.getDisplayName())
                               .role(user.getRole())
-                              .token(tokens.expiring(Map.of("id", user.getId().toString(), "username", user.getLoginId(), "role", user.getRole())))
+                              .token(tokens.expiring(Map.of("id", user.getId().toString(), "username", user.getLoginId(), "role", user.getRole(), "displayName", user.getDisplayName())))
                               .build());
     }
 
